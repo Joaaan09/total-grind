@@ -14,7 +14,6 @@ services:
       - backend
     networks:
       - reverse_proxy_network
-      - internal
 
   # Backend - Node.js/Express
   backend:
@@ -36,26 +35,25 @@ services:
       - uploads:/app/uploads
     networks:
       - reverse_proxy_network
-      - internal
 
   # Base de datos MongoDB (sin auth - solo red interna)
   mongodb:
-    image: mongo:7
+    image: mongo:latest
     container_name: totalgrind-mongodb
-    restart: unless-stopped
-    command: [ "mongod", "--noauth" ]
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mernuser
+      - MONGO_INITDB_ROOT_PASSWORD=secret123
+      - MONGO_INITDB_DATABASE=mernapp
     volumes:
-      - mongodb_data:/data/db
+      - mydata:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
-      - internal
+      - reverse_proxy_network
 
 networks:
   # Red externa para Nginx Proxy Manager
   reverse_proxy_network:
     external: true
-  # Red interna para comunicación entre servicios
-  internal:
-    driver: bridge
 
 volumes:
   mongodb_data:
