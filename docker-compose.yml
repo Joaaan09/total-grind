@@ -26,8 +26,8 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=5000
-      # URI SIN AUTENTICACIÓN (Prueba de conectividad)
-      - MONGO_URI=mongodb://mongodb:27017/totalgrind
+      # URI CON AUTENTICACIÓN
+      - MONGO_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb:27017/mernapp?authSource=admin
       - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - mongodb
@@ -37,15 +37,16 @@ services:
       - reverse_proxy_network
       - internal
 
-  # Base de datos MongoDB (SIN AUTH TEMPORALMENTE)
+  # Base de datos MongoDB
   mongodb:
     image: mongo:7
     container_name: totalgrind-mongodb
     restart: unless-stopped
-    command: [ "mongod", "--noauth" ]
-    # environment:
-    #   - MONGO_INITDB_ROOT_USERNAME=admin
-    #   - MONGO_INITDB_ROOT_PASSWORD=password123
+    # command: [ "mongod", "--noauth" ] # Removed to allow auth
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_INITDB_DATABASE=mernapp
     volumes:
       - mongodb_data_FINAL:/data/db
     networks:
