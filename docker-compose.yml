@@ -25,10 +25,11 @@ services:
     expose:
       - "5000"
     environment:
-      - NODE_ENV=production
-      - PORT=5000
-      - MONGO_URI=mongodb://mongodb:27017/totalgrind
-      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
+      - DB_HOST=mongodb_server
+      - DB_USER=mernuser
+      - DB_PASSWORD=secret123
+      - DB_NAME=mernapp
+      - DB_PORT=27017
     depends_on:
       - mongodb
     volumes:
