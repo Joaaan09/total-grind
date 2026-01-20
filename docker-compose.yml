@@ -26,8 +26,11 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=5000
-      # URI autenticada usando variables de entorno
-      - MONGO_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb:27017/totalgrind?authSource=admin
+      # URI base sin credenciales para evitar problemas de parsing
+      - MONGO_URI=mongodb://mongodb:27017/totalgrind?authSource=admin
+      # Credenciales separadas explícitas
+      - MONGO_USER=${MONGO_USER}
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - mongodb
@@ -46,9 +49,8 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
     volumes:
-      # Volvemos al volumen original (o uno nuevo v4 para asegurar limpieza)
-      # Usaremos v_auth para que sea fresco y con auth activada desde el inicio
-      - mongodb_data_auth:/data/db
+      # Mantenemos el mismo volumen v5 que ya sabemos que funciona con admin/password123
+      - mongodb_data_v5:/data/db
     networks:
       - internal
 
@@ -59,5 +61,5 @@ networks:
     driver: bridge
 
 volumes:
-  mongodb_data_auth:
+  mongodb_data_v5:
   uploads:

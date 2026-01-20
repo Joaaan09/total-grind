@@ -668,6 +668,13 @@ const connectOptions = {
   directConnection: true,
 };
 
+// Si hay usuario y contraseña explícitos, usarlos
+if (process.env.MONGO_USER && process.env.MONGO_PASSWORD) {
+  connectOptions.user = process.env.MONGO_USER;
+  connectOptions.pass = process.env.MONGO_PASSWORD;
+  console.log('Using explicit MongoDB credentials from env vars');
+}
+
 mongoose.connect(MONGO_URI, connectOptions)
   .then(async () => {
     console.log('Connected to MongoDB');
