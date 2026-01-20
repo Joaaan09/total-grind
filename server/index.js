@@ -3,6 +3,8 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const TrainingBlock = require('./models/TrainingBlock');
 const Progress = require('./models/Progress');
 const User = require('./models/User');
@@ -38,12 +40,52 @@ const PORT = process.env.PORT || 5000;
 // Usar 127.0.0.1 en lugar de localhost para evitar problemas de resolución IPv6 en Node 17+
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/powerlift-pro';
 
-app.use(cors());
+// ===== SEGURIDAD =====
+
+// Helmet - headers de seguridad HTTP
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" } // Permitir carga de imágenes
+}));
+
+// CORS - restringido en producción
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? ['https://total-grind.duckdns.org', 'http://total-grind.duckdns.org']
+  : ['http://localhost:5173', 'http://127.0.0.1:5173'];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Permitir requests sin origin (ej. mobile apps, curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('CORS not allowed'), false);
+  },
+  credentials: true
+}));
+
+// Rate limiting - prevenir ataques de fuerza bruta
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 20, // máximo 20 intentos por IP
+  message: { error: 'Demasiados intentos. Intenta de nuevo en 15 minutos.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const generalLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minuto
+  max: 100, // 100 requests por minuto
+  message: { error: 'Demasiadas peticiones. Intenta más tarde.' },
+});
+
+app.use(generalLimiter);
 app.use(express.json({ limit: '50mb' }));
 
-// Rutas de Autenticación
-// Rutas de Autenticación
-app.use('/api/auth', authRoutes);
+// ===== RUTAS =====
+
+// Rutas de Autenticación (con rate limiting extra)
+app.use('/api/auth', authLimiter, authRoutes);
 
 // Servir archivos subidos estáticamente
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
