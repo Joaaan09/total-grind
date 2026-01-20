@@ -80,6 +80,3 @@ La aplicación estará disponible en `http://localhost:5173`.
 - **¿No cargan las imágenes?** Asegúrate de que el backend se está ejecutando. Las imágenes se sirven estáticamente desde `server/uploads`.
 - **¿Conexión rechazada?** Comprueba si MongoDB se está ejecutando localmente.
 
-## Licencia
-
-ISC
