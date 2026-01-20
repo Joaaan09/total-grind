@@ -662,9 +662,14 @@ app.post('/api/coach/athletes/:athleteId/blocks', authMiddleware, async (req, re
 
 
 // --- INICIALIZACIÓN ---
+console.log('Attempting to connect to MongoDB with URI:', MONGO_URI.replace(/:([^:@]{1,})@/, ':****@')); // Ocultar pass si la hay
+
 mongoose.connect(MONGO_URI)
-  .then(async () => {
+  .then(async (client) => {
     console.log('Connected to MongoDB');
+    console.log('DB Host:', client.connection.host);
+    console.log('DB Port:', client.connection.port);
+    console.log('DB Name:', client.connection.name);
 
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
