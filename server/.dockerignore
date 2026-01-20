@@ -1,0 +1,22 @@
+# Dependencias
+node_modules
+npm-debug.log
+
+# Logs
+*.log
+
+# Uploads (se montan como volumen)
+uploads
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# Tests
+*.test.js
+*.spec.js
+coverage

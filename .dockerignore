@@ -1,0 +1,36 @@
+# Dependencias y builds
+node_modules
+npm-debug.log
+.npm
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# Builds locales
+dist
+build
+
+# Entorno
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Server node_modules (tiene su propio Dockerfile)
+server/node_modules
+
+# Tests
+coverage
+*.test.js
+*.spec.js
