@@ -28,7 +28,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=5000
-      - MONGO_URI=mongodb://totalgrind:${MONGO_PASSWORD:-totalgrind123}@mongodb:27017/totalgrind?authSource=admin
+      - MONGO_URI=mongodb://mongodb:27017/totalgrind
       - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
     depends_on:
       - mongodb
@@ -38,14 +38,12 @@ services:
       - reverse_proxy_network
       - internal
 
-  # Base de datos MongoDB
+  # Base de datos MongoDB (sin auth - solo red interna)
   mongodb:
     image: mongo:7
     container_name: totalgrind-mongodb
     restart: unless-stopped
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=totalgrind
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-totalgrind123}
+    command: [ "mongod", "--noauth" ]
     volumes:
       - mongodb_data:/data/db
     networks:
