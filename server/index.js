@@ -620,17 +620,8 @@ mongoose.connect(MONGO_URI)
   .then(async () => {
     console.log('Connected to MongoDB');
 
-    // Auto-seed if empty
-    const blockCount = await TrainingBlock.countDocuments();
-    if (blockCount === 0) {
-      console.log('Seeding Database...');
-      await TrainingBlock.insertMany(SEED_BLOCKS);
-      await Progress.insertMany(SEED_PROGRESS);
-      console.log('Database Seeded!');
-    }
-
     app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch(err => {
