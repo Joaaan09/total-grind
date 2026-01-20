@@ -1,26 +1,20 @@
 const mongoose = require('mongoose');
 
-const PASSWORD = 'password123';
+const mongoose = require('mongoose');
+
+// Testing the NEW dedicated user
+const PASSWORD = 'app_password';
+const USER = 'app_user';
 const HOST = 'mongodb';
-const AUTH_DB = 'admin';
 const TARGET_DB = 'totalgrind';
 
 // Strategies to test
 const strategies = [
     {
-        name: 'Check 1: URI with authSource, No Options',
-        uri: `mongodb://admin:${PASSWORD}@${HOST}:27017/${TARGET_DB}?authSource=${AUTH_DB}`,
-        options: { serverSelectionTimeoutMS: 3000 }
-    },
-    {
-        name: 'Check 2: Clean URI, Options with authSource',
-        uri: `mongodb://admin:${PASSWORD}@${HOST}:27017/${TARGET_DB}`,
-        options: { authSource: AUTH_DB, serverSelectionTimeoutMS: 3000 }
-    },
-    {
-        name: 'Check 3: Connect to Admin DB directly',
-        uri: `mongodb://admin:${PASSWORD}@${HOST}:27017/${AUTH_DB}`,
-        options: { serverSelectionTimeoutMS: 3000 }
+        name: 'Dedicated User Strategy',
+        // No authSource needed because user is created IN the target DB
+        uri: `mongodb://${USER}:${PASSWORD}@${HOST}:27017/${TARGET_DB}`,
+        options: { serverSelectionTimeoutMS: 5000 }
     }
 ];
 
