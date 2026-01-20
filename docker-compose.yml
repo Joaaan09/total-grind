@@ -43,7 +43,8 @@ services:
     restart: unless-stopped
     command: [ "mongod", "--bind_ip_all" ]
     volumes:
-      - mongodb_data:/data/db
+      # CAMBIO NOMBRE DE VOLUMEN PARA FORZAR LIMPIEZA
+      - mongodb_data_v2:/data/db
     networks:
       - internal
 
@@ -54,5 +55,5 @@ networks:
     driver: bridge
 
 volumes:
-  mongodb_data:
+  mongodb_data_v2:
   uploads:
