@@ -26,26 +26,22 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=5000
-      - MONGO_URI=mongodb://${MONGO_USER:-mernuser}:${MONGO_PASSWORD:-secret123}@mongodb:27017/totalgrind?authSource=admin
-      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
+      - MONGO_URI=mongodb://mongodb:27017/totalgrind
+      - JWT_SECRET=${JWT_SECRET:-MiSecretoJWTSeguro2026}
     depends_on:
-      mongodb:
-        condition: service_started
+      - mongodb
     volumes:
       - uploads:/app/uploads
     networks:
       - reverse_proxy_network
       - internal
 
-  # Base de datos MongoDB
+  # Base de datos MongoDB (sin auth - red interna solamente)
   mongodb:
     image: mongo:7
     container_name: totalgrind-mongodb
     restart: unless-stopped
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-mernuser}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-secret123}
-      - MONGO_INITDB_DATABASE=totalgrind
+    command: [ "mongod", "--bind_ip_all" ]
     volumes:
       - mongodb_data:/data/db
     networks:
