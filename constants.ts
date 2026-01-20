@@ -17,33 +17,33 @@ export const MOCK_COACH: User = {
 
 export const MOCK_PROGRESS: ProgressData[] = [
   {
-    exerciseName: 'Squat',
+    exerciseName: 'Comp SQ',
     history: [
-      { date: '2023-10-01', weight: 180 },
-      { date: '2023-11-01', weight: 185 },
-      { date: '2023-12-01', weight: 190 },
-      { date: '2024-01-01', weight: 195 },
-      { date: '2024-02-01', weight: 200 },
+      { date: '2023-10-01', estimatedMax: 180, actualMax: 175 },
+      { date: '2023-11-01', estimatedMax: 185, actualMax: 180 },
+      { date: '2023-12-01', estimatedMax: 190, actualMax: 185 },
+      { date: '2024-01-01', estimatedMax: 195, actualMax: 190 },
+      { date: '2024-02-01', estimatedMax: 200, actualMax: 195 },
     ]
   },
   {
-    exerciseName: 'Bench Press',
+    exerciseName: 'Comp BP',
     history: [
-      { date: '2023-10-01', weight: 110 },
-      { date: '2023-11-01', weight: 112.5 },
-      { date: '2023-12-01', weight: 115 },
-      { date: '2024-01-01', weight: 117.5 },
-      { date: '2024-02-01', weight: 120 },
+      { date: '2023-10-01', estimatedMax: 110, actualMax: 105 },
+      { date: '2023-11-01', estimatedMax: 112, actualMax: 107 },
+      { date: '2023-12-01', estimatedMax: 115, actualMax: 110 },
+      { date: '2024-01-01', estimatedMax: 117, actualMax: 112 },
+      { date: '2024-02-01', estimatedMax: 120, actualMax: 115 },
     ]
   },
   {
-    exerciseName: 'Deadlift',
+    exerciseName: 'Comp DL',
     history: [
-      { date: '2023-10-01', weight: 210 },
-      { date: '2023-11-01', weight: 215 },
-      { date: '2023-12-01', weight: 220 },
-      { date: '2024-01-01', weight: 225 },
-      { date: '2024-02-01', weight: 235 },
+      { date: '2023-10-01', estimatedMax: 210, actualMax: 200 },
+      { date: '2023-11-01', estimatedMax: 215, actualMax: 205 },
+      { date: '2023-12-01', estimatedMax: 220, actualMax: 210 },
+      { date: '2024-01-01', estimatedMax: 225, actualMax: 215 },
+      { date: '2024-02-01', estimatedMax: 235, actualMax: 225 },
     ]
   }
 ];
