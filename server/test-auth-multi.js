@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 
-const mongoose = require('mongoose');
-
 // Testing the NEW dedicated user
 const PASSWORD = 'app_password';
 const USER = 'app_user';
