@@ -36,6 +36,10 @@ const upload = multer({
 });
 
 const app = express();
+
+// Trust Proxy (Necesario porque estamos detrás de Nginx / Docker)
+app.set('trust proxy', 1);
+
 const PORT = process.env.PORT || 5000;
 // Usar 127.0.0.1 en lugar de localhost para evitar problemas de resolución IPv6 en Node 17+
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/powerlift-pro';
