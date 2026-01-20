@@ -663,9 +663,9 @@ app.post('/api/coach/athletes/:athleteId/blocks', authMiddleware, async (req, re
 
 // --- INICIALIZACIÓN ---
 const connectOptions = {
-  // Opciones recomendadas para entornos Docker/K8s con problemas de resolución/auth
+  // Opciones recomendadas
   authSource: 'admin',
-  directConnection: true,
+  // directConnection: true, // Desactivado por posibles conflictos de autenticación en algunas versiones
 };
 
 // Si hay usuario y contraseña explícitos, usarlos
@@ -686,4 +686,6 @@ mongoose.connect(MONGO_URI, connectOptions)
   .catch(err => {
     console.error('MongoDB connection error:', err);
     console.log('Ensure MongoDB is running locally on port 27017 or update MONGO_URI.');
+    // Salir con error para que Docker reinicie el contenedor correctamente
+    process.exit(1);
   });
