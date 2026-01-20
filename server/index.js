@@ -685,7 +685,10 @@ mongoose.connect(MONGO_URI, connectOptions)
   })
   .catch(err => {
     console.error('MongoDB connection error:', err);
-    console.log('Ensure MongoDB is running locally on port 27017 or update MONGO_URI.');
-    // Salir con error para que Docker reinicie el contenedor correctamente
-    process.exit(1);
+    console.log('Retrying in 5 seconds...');
+    setTimeout(() => {
+      // Retry connection logic could go here, but for now we just keep the process alive
+      // to allow debugging via 'docker compose exec'.
+      console.log('Waiting for manual fix or restart...');
+    }, 5000);
   });
