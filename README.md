@@ -20,63 +20,100 @@ Total Grind es una aplicación web completa diseñada para powerlifters y entren
 - **Frontend**: React, TypeScript, Vite, Tailwind CSS, Recharts, Lucide React
 - **Backend**: Node.js, Express, MongoDB, Mongoose, Autenticación JWT
 - **Almacenamiento**: Almacenamiento local de archivos para fotos de perfil
+- **Despliegue**: Docker, Docker Compose, Nginx
 
-## Requisitos Previos
+---
 
-- [Node.js](https://nodejs.org/) (v16 o superior)
-- [MongoDB](https://www.mongodb.com/try/download/community) instalado y ejecutándose localmente en el puerto 27017
+## 🚀 Despliegue con Docker (Producción)
 
-## Instalación y Configuración
+### Requisitos
+- Docker y Docker Compose instalados
+- Red de Docker `reverse_proxy_network` existente (para Nginx Proxy Manager)
 
-### 1. Clonar el repositorio
+### Pasos
+
+1. **Clonar el repositorio**
 ```bash
-git clone <url-del-repositorio>
+git clone https://github.com/Joaaan09/total-grind.git
 cd total-grind
 ```
 
-### 2. Configuración del Backend
-Navega al directorio del servidor e instala las dependencias:
+2. **Configurar variables de entorno** (opcional)
+```bash
+# Editar JWT_SECRET en docker-compose.yml o crear archivo .env
+export JWT_SECRET=tu-secreto-super-seguro
+```
+
+3. **Levantar los contenedores**
+```bash
+docker compose up -d
+```
+
+4. **Verificar que todo funciona**
+```bash
+docker compose ps
+docker compose logs backend --tail 20
+```
+
+### Servicios
+| Servicio | Puerto | Descripción |
+|----------|--------|-------------|
+| frontend | 80 | React app con Nginx |
+| backend | 5000 | API Node.js/Express |
+| mongodb | 27017 | Base de datos MongoDB |
+
+### Configurar Nginx Proxy Manager
+- **Domain**: tu-dominio.com
+- **Forward Hostname**: `totalgrind-frontend`
+- **Forward Port**: `80`
+
+---
+
+## 💻 Desarrollo Local
+
+### Requisitos
+- [Node.js](https://nodejs.org/) (v16 o superior)
+- [MongoDB](https://www.mongodb.com/try/download/community) instalado y ejecutándose localmente
+
+### 1. Configuración del Backend
 ```bash
 cd server
 npm install
 ```
 
-Crea un archivo `.env` en el directorio `server` (opcional si los valores por defecto funcionan, pero recomendado):
+Crea un archivo `.env` en el directorio `server`:
 ```bash
 PORT=5000
 MONGO_URI=mongodb://127.0.0.1:27017/powerlift-pro
 JWT_SECRET=tu_secreto_super_seguro
 ```
 
-Inicia el servidor backend:
+Inicia el servidor:
 ```bash
 npm start
 ```
-El servidor se ejecutará en `http://localhost:5000`.
 
-### 3. Configuración del Frontend
-Abre una nueva terminal, navega al directorio raíz (donde está el frontend) e instala las dependencias:
+### 2. Configuración del Frontend
 ```bash
 cd ..  # si estás en server/
 npm install
-```
-
-Inicia el servidor de desarrollo del frontend:
-```bash
 npm run dev
 ```
+
 La aplicación estará disponible en `http://localhost:5173`.
+
+---
 
 ## Guía de Uso
 
 1. **Registrarse**: Crea una cuenta como Atleta.
 2. **Dashboard**: Consulta tus bloques activos y tu progreso reciente.
-3. **Entrenamiento**: Crea un nuevo Bloque (ej. "Bloque de Hipertrofia 1"), añade semanas y registra tus días.
+3. **Entrenamiento**: Crea un nuevo Bloque, añade semanas y registra tus días.
 4. **Perfil**: Sube una foto de perfil, cambia tu nombre o cambia de rol.
 5. **Modo Entrenador**: Ve a Perfil -> Convertirse en Entrenador para empezar a gestionar atletas.
 
 ## Solución de Problemas
 
-- **¿No cargan las imágenes?** Asegúrate de que el backend se está ejecutando. Las imágenes se sirven estáticamente desde `server/uploads`.
-- **¿Conexión rechazada?** Comprueba si MongoDB se está ejecutando localmente.
-
+- **¿No cargan las imágenes?** Asegúrate de que el backend se está ejecutando.
+- **¿Conexión rechazada?** Comprueba si MongoDB se está ejecutando.
+- **¿Error 502 en producción?** Revisa los logs: `docker compose logs backend`
