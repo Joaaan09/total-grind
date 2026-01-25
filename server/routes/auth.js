@@ -115,8 +115,8 @@ router.get('/me', authMiddleware, async (req, res) => {
         // Evitar caché para asegurar que las actualizaciones de foto de perfil se vean inmediatamente
         res.set('Cache-Control', 'no-store');
 
-        // console.log('ME Called. User ID:', req.user._id);
-        // console.log('ME User ProfilePicture:', req.user.profilePicture);
+        console.log('ME Called. User ID:', req.user._id);
+        console.log('ME User ProfilePicture:', req.user.profilePicture);
 
         // Popular detalles del entrenador si está presente
         if (req.user.coachId) {

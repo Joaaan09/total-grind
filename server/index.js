@@ -120,16 +120,13 @@ app.post('/api/user/avatar', authMiddleware, upload.single('avatar'), async (req
     }
 
     // Establecer nueva ruta relativa a la raíz del servidor
-    // Nota: Añadimos / al inicio para hacerlo ruta absoluta relativa al dominio
     const newPath = '/uploads/profiles/' + req.file.filename;
-    // console.log('Saving profile picture path:', newPath);
     user.profilePicture = newPath;
 
     // Marcar explícitamente como modificado (aunque no es necesario para asignación directa)
     user.markModified('profilePicture');
 
     await user.save();
-    // console.log('User saved. Profile Picture in DB:', user.profilePicture);
 
     res.json({
       success: true,

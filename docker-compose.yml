@@ -27,18 +27,18 @@ services:
       - NODE_ENV=production
       - PORT=5000
       # URI CON AUTENTICACIÓN
-      - MONGO_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb:27017/mernapp?authSource=admin
+      - MONGO_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb_totalgrind:27017/mernapp?authSource=admin
       - JWT_SECRET=${JWT_SECRET}
     depends_on:
-      - mongodb
+      - mongodb_totalgrind
     volumes:
-      - uploads:/app/uploads
+      - ./server/uploads:/app/uploads
     networks:
       - reverse_proxy_network
       - internal
 
   # Base de datos MongoDB
-  mongodb:
+  mongodb_totalgrind:
     image: mongo:7
     container_name: totalgrind-mongodb
     restart: unless-stopped
@@ -60,4 +60,3 @@ networks:
 
 volumes:
   mongodb_data_FINAL:
-  uploads:

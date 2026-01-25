@@ -180,15 +180,17 @@ export const TrainingService = {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
-          // Content-Type se establece automáticamente con boundary por fetch para FormData
         },
         body: formData
       });
+
       const data = await res.json();
-      if (!res.ok) return { success: false };
+
+      if (!res.ok) {
+        return { success: false };
+      }
       return { success: true, url: data.profilePicture };
     } catch (error) {
-      console.error("Error uploading avatar", error);
       return { success: false };
     }
   },

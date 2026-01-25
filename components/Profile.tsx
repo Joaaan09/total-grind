@@ -150,15 +150,15 @@ export const Profile: React.FC<ProfileProps> = ({ user }) => {
                         return;
                     }
 
-                    // Subir imagen al servidor
                     try {
                         const result = await TrainingService.uploadAvatar(token, blob);
                         if (result.success) {
+                            await new Promise(resolve => setTimeout(resolve, 500));
                             if (refreshUser) await refreshUser();
                             setUploadStatus({ type: 'success', message: "Foto actualizada." });
                             setTimeout(() => setUploadStatus(null), 3000);
                         } else {
-                            setUploadStatus({ type: 'error', message: "Error del servidor. ¿Reiniciaste el backend?" });
+                            setUploadStatus({ type: 'error', message: "Error del servidor." });
                         }
                     } catch (error) {
                         setUploadStatus({ type: 'error', message: "Error de conexión." });
@@ -181,8 +181,8 @@ export const Profile: React.FC<ProfileProps> = ({ user }) => {
                             <div className="h-16 w-16 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 overflow-hidden border-2 border-slate-700">
                                 {user.profilePicture ? (
                                     <img
-                                        key={user.profilePicture}
-                                        src={user.profilePicture.startsWith('/uploads') ? `http://localhost:5000${user.profilePicture}` : user.profilePicture}
+                                        key={`${user.profilePicture}-${user.profilePicture}`}
+                                        src={user.profilePicture}
                                         alt="Profile"
                                         className="h-full w-full object-cover"
                                     />
