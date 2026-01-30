@@ -40,3 +40,8 @@ server/uploads/*
 *.njsproj
 *.sln
 *.sw?
+
+# Staging-specific files (not needed in main branch)
+docker-compose.staging.yml
+Dockerfile.staging
+nginx.staging.conf

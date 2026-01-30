@@ -51,8 +51,8 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" } // Permitir carga de imágenes
 }));
 
-// CORS - restringido en producción
-const allowedOrigins = process.env.NODE_ENV === 'production'
+// CORS - restringido en producción y staging
+const allowedOrigins = (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging')
   ? [
     'https://total-grind.duckdns.org',
     'http://total-grind.duckdns.org',
