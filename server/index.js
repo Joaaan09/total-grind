@@ -350,7 +350,7 @@ app.put('/api/days/:dayId', authMiddleware, async (req, res) => {
           // Verificar tanto _id de MongoDB como campo id personalizado
           if (day._id.toString() === dayId || day.id === dayId) {
             week.days[i].exercises = dayData.exercises;
-            week.days[i].isCompleted = true;
+            week.days[i].isCompleted = dayData.isCompleted !== undefined ? dayData.isCompleted : true;
             week.days[i].athleteNotes = dayData.athleteNotes;
             if (dayData.description !== undefined) {
               week.days[i].description = dayData.description;

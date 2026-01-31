@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TrainingDay, Exercise, ExerciseSet } from '../types';
 import { calculate1RM, TrainingService } from '../services/mockService';
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from './ui';
-import { CheckCircle2, Circle, Save, Loader2, ChevronLeft, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, Circle, Save, Loader2, ChevronLeft, AlertTriangle, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 // Props para el componente de sesión de entrenamiento
@@ -19,6 +19,8 @@ const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, onComplete, onCanc
   const [sessionComplete, setSessionComplete] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const handleSetUpdate = (exerciseId: string, setId: string, field: keyof ExerciseSet, value: string | number) => {
     setExercises(prevExercises => prevExercises.map(ex => {
@@ -67,6 +69,22 @@ const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, onComplete, onCanc
       return;
     }
 
+    // Validar que TODAS las series tengan peso y reps
+    const incompleteSets: string[] = [];
+    exercises.forEach(ex => {
+      ex.sets.forEach((set, idx) => {
+        if (!set.weight || !set.reps) {
+          incompleteSets.push(`${ex.name} - Serie ${idx + 1}`);
+        }
+      });
+    });
+
+    if (incompleteSets.length > 0) {
+      setValidationError(`Debes rellenar peso y reps en todas las series: ${incompleteSets.slice(0, 3).join(', ')}${incompleteSets.length > 3 ? ` y ${incompleteSets.length - 3} más...` : ''}`);
+      return;
+    }
+
+    setValidationError(null);
     setIsSaving(true);
     // Preparar el objeto del día actualizado con los ejercicios completados y notas
     const updatedDay: TrainingDay = {
@@ -86,6 +104,42 @@ const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, onComplete, onCanc
       }, 1500);
     } else {
       alert("Error al guardar la sesión. Revisa la consola o la conexión al backend.");
+    }
+  };
+
+  // Función para resetear/borrar la sesión
+  const handleResetSession = async () => {
+    if (!token) return;
+
+    setIsSaving(true);
+    // Resetear ejercicios: quitar peso, reps, rpe real y marcar como no completados
+    const resetExercises = day.exercises.map(ex => ({
+      ...ex,
+      sets: ex.sets.map(set => ({
+        ...set,
+        weight: undefined,
+        reps: undefined,
+        rpe: undefined,
+        estimated1rm: undefined,
+        isCompleted: false
+      }))
+    }));
+
+    const resetDay: TrainingDay = {
+      ...day,
+      exercises: resetExercises,
+      athleteNotes: undefined,
+      isCompleted: false
+    };
+
+    const success = await TrainingService.updateDay(token, day.id, resetDay);
+    setIsSaving(false);
+    setShowResetConfirm(false);
+
+    if (success) {
+      onComplete(); // Volver al bloque
+    } else {
+      alert("Error al borrar la sesión.");
     }
   };
 
@@ -124,6 +178,64 @@ const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, onComplete, onCanc
           <span className="hidden sm:inline">{isSaving ? 'Guardando...' : 'Guardar Sesión'}</span>
         </Button>
       </div>
+
+      {/* Mensaje de error de validación */}
+      {validationError && (
+        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 flex items-start gap-3">
+          <AlertTriangle size={20} className="text-red-400 shrink-0 mt-0.5" />
+          <p className="text-sm text-red-300">{validationError}</p>
+        </div>
+      )}
+
+      {/* Botón borrar sesión (solo si ya está completada) */}
+      {day.isCompleted && (
+        <div className="flex justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-red-400 hover:text-red-300 hover:bg-red-500/10 gap-2"
+            onClick={() => setShowResetConfirm(true)}
+            disabled={isSaving}
+          >
+            <Trash2 size={16} />
+            Borrar sesión
+          </Button>
+        </div>
+      )}
+
+      {/* Modal de confirmación de borrado */}
+      {showResetConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-xl p-6 max-w-md w-full space-y-4">
+            <div className="flex items-center gap-3 text-red-400">
+              <Trash2 size={24} />
+              <h3 className="text-xl font-bold text-white">¿Borrar sesión?</h3>
+            </div>
+            <p className="text-slate-300">
+              Se eliminarán todos los datos de esta sesión (peso, reps, notas) y volverá a aparecer como pendiente.
+            </p>
+            <div className="flex gap-3 pt-2">
+              <Button
+                variant="ghost"
+                className="flex-1"
+                onClick={() => setShowResetConfirm(false)}
+                disabled={isSaving}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="danger"
+                className="flex-1"
+                onClick={handleResetSession}
+                disabled={isSaving}
+              >
+                {isSaving ? <Loader2 className="animate-spin mr-2" size={16} /> : null}
+                Borrar sesión
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal de confirmación de salida */}
       {showExitConfirm && (

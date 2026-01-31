@@ -109,48 +109,59 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, activeBlocks, progre
                 </Card>
             </div>
 
-            {/* Bloque de entrenamiento activo */}
+            {/* Próximos Entrenamientos */}
             <section>
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-bold text-white">Entrenamiento Activo</h2>
+                    <h2 className="text-xl font-bold text-white">Próximos Entrenamientos</h2>
                     <Button variant="ghost" size="sm" className="text-blue-500" onClick={() => onNavigate('/training')}>
                         Ver todo <ArrowRight size={16} className="ml-1" />
                     </Button>
                 </div>
 
                 {(() => {
-                    const activeBlock = activeBlocks.find(block => {
-                        const isCompleted = block.weeks.every(week =>
-                            week.days.every(day => day.isCompleted)
-                        );
-                        return !isCompleted;
-                    });
+                    // Recopilar todos los días pendientes de todos los bloques
+                    const pendingDays = activeBlocks.flatMap(block =>
+                        block.weeks.flatMap(week =>
+                            week.days
+                                .filter(day => !day.isCompleted)
+                                .map(day => ({ ...day, blockTitle: block.title, blockId: block.id }))
+                        )
+                    ).slice(0, 5);
 
-                    return activeBlock ? (
-                        <Card className="border-l-4 border-l-blue-500">
-                            <CardContent className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                                <div>
-                                    <div className="text-sm text-blue-400 font-semibold uppercase tracking-wider mb-1">Semana 1 / {activeBlock.weeks.length}</div>
-                                    <h3 className="text-2xl font-bold text-white max-w-md truncate">{activeBlock.title}</h3>
-                                    <p className="text-slate-400 mt-1">
-                                        {activeBlock.weeks[0]?.days.find(d => !d.isCompleted)?.dayName || 'Todo completado'}
-                                    </p>
-                                    {activeBlock.source === 'assigned' && (
-                                        <p className="text-xs text-blue-400 mt-1 bg-blue-900/20 inline-block px-2 py-1 rounded">
-                                            Asignado por {activeBlock.assignedBy || 'Entrenador'}
-                                        </p>
-                                    )}
-                                </div>
-                                <Button size="lg" className="w-full md:w-auto shadow-lg shadow-blue-900/20" onClick={() => onNavigate(`/training/${activeBlock.id}`)}>
-                                    Continuar Entreno
-                                </Button>
-                            </CardContent>
-                        </Card>
+                    return pendingDays.length > 0 ? (
+                        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                            {pendingDays.map((day, index) => (
+                                <Card
+                                    key={`${day.blockId}-${day.id}`}
+                                    className="group cursor-pointer hover:border-blue-500/50 transition-all hover:bg-slate-900"
+                                    onClick={() => onNavigate(`/training/${day.blockId}`)}
+                                >
+                                    <CardContent className="p-4">
+                                        <div className="flex items-start justify-between gap-2">
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs text-blue-400 font-medium uppercase tracking-wide mb-1 truncate">
+                                                    {day.blockTitle}
+                                                </p>
+                                                <h3 className="text-lg font-semibold text-white truncate">
+                                                    {day.dayName}
+                                                </h3>
+                                                <p className="text-sm text-slate-500 mt-1">
+                                                    {day.exercises?.length || 0} ejercicios
+                                                </p>
+                                            </div>
+                                            <div className="p-2 bg-blue-600/20 text-blue-400 rounded-lg shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                                <ArrowRight size={18} />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
                     ) : (
                         <Card className="border-dashed border-slate-700">
                             <CardContent className="p-8 text-center">
-                                <p className="text-slate-500 mb-4">No tienes un bloque de entrenamiento activo.</p>
-                                <Button variant="outline" onClick={() => onNavigate('/training')}>Crear o Buscar Plan</Button>
+                                <p className="text-slate-500 mb-4">¡Enhorabuena! No tienes entrenamientos pendientes.</p>
+                                <Button variant="outline" onClick={() => onNavigate('/training')}>Ver planificación</Button>
                             </CardContent>
                         </Card>
                     );
