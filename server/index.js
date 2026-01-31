@@ -704,6 +704,52 @@ app.get('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) =>
   }
 });
 
+// Crear usuario (Admin)
+app.post('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { email, password, name, role } = req.body;
+
+    // Validaciones
+    if (!email || !password || !name) {
+      return res.status(400).json({ error: 'Todos los campos son requeridos' });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+    }
+    if (role === 'admin') {
+      return res.status(400).json({ error: 'No se puede crear usuarios admin via API' });
+    }
+
+    // Verificar si el email ya existe
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Ya existe un usuario con este email' });
+    }
+
+    // Crear usuario
+    const user = new User({
+      email: email.toLowerCase(),
+      password,
+      name,
+      role: role || 'athlete'
+    });
+    await user.save();
+
+    res.status(201).json({
+      success: true,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      }
+    });
+  } catch (err) {
+    console.error('Error creating user:', err);
+    res.status(500).json({ error: 'Error al crear usuario' });
+  }
+});
+
 // Obtener detalle de un usuario (bloques, progreso, mejores marcas)
 app.get('/api/admin/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {

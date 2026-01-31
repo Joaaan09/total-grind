@@ -37,7 +37,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 // Componente envoltorio para páginas de autenticación (redirige al inicio si ya está logueado)
 const AuthRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
     return (
@@ -48,7 +48,8 @@ const AuthRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    // Admins go to /admin, others go to /
+    return <Navigate to={user?.role === 'admin' ? '/admin' : '/'} replace />;
   }
 
   return <>{children}</>;
@@ -259,14 +260,19 @@ function AppContent() {
           path="/"
           element={
             <ProtectedRoute>
-              <Layout>
-                <Dashboard
-                  user={appUser!}
-                  activeBlocks={blocks}
-                  progressData={progressData}
-                  onNavigate={(path) => window.location.hash = path}
-                />
-              </Layout>
+              {/* Redirigir admins a /admin */}
+              {user?.role === 'admin' ? (
+                <Navigate to="/admin" replace />
+              ) : (
+                <Layout>
+                  <Dashboard
+                    user={appUser!}
+                    activeBlocks={blocks}
+                    progressData={progressData}
+                    onNavigate={(path) => window.location.hash = path}
+                  />
+                </Layout>
+              )}
             </ProtectedRoute>
           }
         />

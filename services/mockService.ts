@@ -351,6 +351,25 @@ export const TrainingService = {
     }
   },
 
+  // Crear usuario (Admin)
+  createUser: async (token: string, userData: { email: string; password: string; name: string; role?: string }): Promise<{ success: boolean; user?: any; error?: string }> => {
+    try {
+      const res = await fetch(`${API_URL}/admin/users`, {
+        method: 'POST',
+        headers: getAuthHeaders(token),
+        body: JSON.stringify(userData)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { success: false, error: data.error || 'Error al crear usuario' };
+      }
+      return { success: true, user: data.user };
+    } catch (error) {
+      console.error("Error creating user", error);
+      return { success: false, error: 'Error de conexión' };
+    }
+  },
+
   // Obtener detalle de un usuario
   getUserDetail: async (token: string, userId: string): Promise<any | null> => {
     try {

@@ -75,6 +75,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
     const [newBlockTitle, setNewBlockTitle] = useState('');
     const [creatingBlock, setCreatingBlock] = useState(false);
 
+    // Estados para crear usuario
+    const [showCreateUserModal, setShowCreateUserModal] = useState(false);
+    const [newUserData, setNewUserData] = useState({ name: '', email: '', password: '', role: 'athlete' });
+    const [creatingUser, setCreatingUser] = useState(false);
+    const [createUserError, setCreateUserError] = useState<string | null>(null);
+
     useEffect(() => {
         loadData();
     }, [token]);
@@ -198,6 +204,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
         setCreatingBlock(false);
     };
 
+    // Crear usuario
+    const handleCreateUser = async () => {
+        if (!newUserData.name.trim() || !newUserData.email.trim() || !newUserData.password.trim()) {
+            setCreateUserError('Todos los campos son requeridos');
+            return;
+        }
+        if (newUserData.password.length < 6) {
+            setCreateUserError('La contraseña debe tener al menos 6 caracteres');
+            return;
+        }
+        setCreatingUser(true);
+        setCreateUserError(null);
+        const result = await TrainingService.createUser(token, newUserData);
+        if (result.success) {
+            setShowCreateUserModal(false);
+            setNewUserData({ name: '', email: '', password: '', role: 'athlete' });
+            await loadData();
+        } else {
+            setCreateUserError(result.error || 'Error al crear usuario');
+        }
+        setCreatingUser(false);
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
@@ -245,11 +274,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
 
             {/* Lista de usuarios */}
             <div className="bg-slate-800 rounded-xl shadow-lg overflow-hidden">
-                <div className="p-4 border-b border-slate-700">
+                <div className="p-4 border-b border-slate-700 flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-white flex items-center gap-2">
                         <Users className="w-5 h-5" />
                         Usuarios Registrados
                     </h2>
+                    <button
+                        onClick={() => setShowCreateUserModal(true)}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors text-sm text-white"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Crear Usuario
+                    </button>
                 </div>
 
                 <div className="overflow-x-auto">
@@ -721,6 +757,105 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                                     ) : (
                                         <>
                                             <Plus className="w-4 h-4" />
+                                            Crear
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de crear usuario */}
+            {showCreateUserModal && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-slate-800 rounded-xl p-6 max-w-md w-full">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                <UserPlus className="w-5 h-5 text-blue-400" />
+                                Crear Usuario
+                            </h3>
+                            <button
+                                onClick={() => {
+                                    setShowCreateUserModal(false);
+                                    setCreateUserError(null);
+                                    setNewUserData({ name: '', email: '', password: '', role: 'athlete' });
+                                }}
+                                className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+                            >
+                                <X className="w-5 h-5 text-slate-400" />
+                            </button>
+                        </div>
+                        <div className="space-y-4">
+                            {createUserError && (
+                                <div className="flex items-center gap-2 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm">
+                                    <AlertCircle className="w-4 h-4" />
+                                    {createUserError}
+                                </div>
+                            )}
+                            <div>
+                                <label className="block text-sm text-slate-400 mb-2">Nombre</label>
+                                <input
+                                    type="text"
+                                    value={newUserData.name}
+                                    onChange={(e) => setNewUserData({ ...newUserData, name: e.target.value })}
+                                    placeholder="Nombre completo"
+                                    className="w-full bg-slate-700 text-white px-4 py-2.5 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm text-slate-400 mb-2">Email</label>
+                                <input
+                                    type="email"
+                                    value={newUserData.email}
+                                    onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
+                                    placeholder="email@ejemplo.com"
+                                    className="w-full bg-slate-700 text-white px-4 py-2.5 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm text-slate-400 mb-2">Contraseña</label>
+                                <input
+                                    type="password"
+                                    value={newUserData.password}
+                                    onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
+                                    placeholder="Mínimo 6 caracteres"
+                                    className="w-full bg-slate-700 text-white px-4 py-2.5 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm text-slate-400 mb-2">Rol</label>
+                                <select
+                                    value={newUserData.role}
+                                    onChange={(e) => setNewUserData({ ...newUserData, role: e.target.value })}
+                                    className="w-full bg-slate-700 text-white px-4 py-2.5 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none"
+                                >
+                                    <option value="athlete">Atleta</option>
+                                    <option value="coach">Entrenador</option>
+                                </select>
+                            </div>
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    onClick={() => {
+                                        setShowCreateUserModal(false);
+                                        setCreateUserError(null);
+                                        setNewUserData({ name: '', email: '', password: '', role: 'athlete' });
+                                    }}
+                                    className="flex-1 px-4 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg transition-colors text-white"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={handleCreateUser}
+                                    disabled={creatingUser}
+                                    className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors text-white flex items-center justify-center gap-2"
+                                >
+                                    {creatingUser ? (
+                                        <RefreshCw className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <>
+                                            <UserPlus className="w-4 h-4" />
                                             Crear
                                         </>
                                     )}
